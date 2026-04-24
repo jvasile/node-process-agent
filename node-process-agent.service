@@ -1,0 +1,33 @@
+[Unit]
+Description=node-process-agent metrics collector
+Documentation=https://github.com/jvasile/node-process-agent
+After=network.target
+
+[Service]
+User=node-process-agent
+Group=node-process-agent
+SupplementaryGroups=disk
+EnvironmentFile=/etc/node-process-agent/node-process-agent.env
+ExecStart=/usr/local/bin/node-process-agent \
+    -victoria-metrics-url $VM_URL \
+    -username $VM_USERNAME \
+    -password-file $VM_PASSWORD_FILE \
+    -hostname $VM_HOSTNAME \
+    -process-config /etc/node-process-agent/processes.yml \
+    -interval $VM_INTERVAL \
+    -queue-size $VM_QUEUE_SIZE
+
+Restart=on-failure
+RestartSec=5s
+
+# Allow reading /proc and /sys for node metrics.
+CapabilityBoundingSet=
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectHome=true
+ProtectSystem=strict
+ReadWritePaths=
+ReadOnlyPaths=/proc /sys /etc/node-process-agent
+
+[Install]
+WantedBy=multi-user.target
