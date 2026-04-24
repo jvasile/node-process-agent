@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"runtime/debug"
 	"strings"
 	"time"
 
@@ -23,7 +24,31 @@ var versionFile string
 
 var version = strings.TrimSpace(versionFile)
 
+func upstreamVersion(module string) string {
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return "unknown"
+	}
+	for _, dep := range info.Deps {
+		if dep.Path == module {
+			if dep.Replace != nil {
+				return dep.Replace.Version
+			}
+			return dep.Version
+		}
+	}
+	return "unknown"
+}
+
 func main() {
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "node-process-agent %s\n", version)
+		fmt.Fprintf(os.Stderr, "  node_exporter:    %s\n", upstreamVersion("github.com/prometheus/node_exporter"))
+		fmt.Fprintf(os.Stderr, "  process-exporter: %s\n", upstreamVersion("github.com/ncabatoff/process-exporter"))
+		fmt.Fprintf(os.Stderr, "\nFlags:\n")
+		flag.PrintDefaults()
+	}
+
 	showVersion := flag.Bool("version", false, "Print version and exit")
 	vmURL := flag.String("victoria-metrics-url", "http://localhost:8428/api/v1/write", "Victoria Metrics remote_write endpoint")
 	interval := flag.Duration("interval", 15*time.Second, "Metric collection interval")
