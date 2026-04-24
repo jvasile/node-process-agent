@@ -1,7 +1,9 @@
 package main
 
 import (
+	_ "embed"
 	"flag"
+	"fmt"
 	"log/slog"
 	"os"
 	"strings"
@@ -16,7 +18,13 @@ import (
 	"github.com/jvasile/node-process-agent/smartmon"
 )
 
+//go:embed VERSION
+var versionFile string
+
+var version = strings.TrimSpace(versionFile)
+
 func main() {
+	showVersion := flag.Bool("version", false, "Print version and exit")
 	vmURL := flag.String("victoria-metrics-url", "http://localhost:8428/api/v1/write", "Victoria Metrics remote_write endpoint")
 	interval := flag.Duration("interval", 15*time.Second, "Metric collection interval")
 	processConfig := flag.String("process-config", "", "Path to process-exporter YAML config file")
@@ -27,6 +35,11 @@ func main() {
 	defaultHostname, _ := os.Hostname()
 	hostname := flag.String("hostname", defaultHostname, "Hostname label attached to all metrics")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(version)
+		return
+	}
 
 	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
 
