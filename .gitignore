@@ -3,3 +3,4 @@ upstream
 node-process-agent
 dist/
 dist
+.env.loca
