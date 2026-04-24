@@ -10,7 +10,7 @@ depends:
 
 contents:
   - src: node-process-agent
-    dst: /usr/local/bin/node-process-agent
+    dst: /usr/bin/node-process-agent
     file_info:
       mode: 0755
 

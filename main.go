@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	kingpin "github.com/alecthomas/kingpin/v2"
 	pecollector "github.com/ncabatoff/process-exporter/collector"
 	peconfig "github.com/ncabatoff/process-exporter/config"
 	"github.com/prometheus/client_golang/prometheus"
@@ -50,6 +51,7 @@ func main() {
 	}
 
 	showVersion := flag.Bool("version", false, "Print version and exit")
+	debug := flag.Bool("debug", false, "Enable debug logging")
 	vmURL := flag.String("victoria-metrics-url", "http://localhost:8428/api/v1/write", "Victoria Metrics remote_write endpoint")
 	interval := flag.Duration("interval", 15*time.Second, "Metric collection interval")
 	processConfig := flag.String("process-config", "", "Path to process-exporter YAML config file")
@@ -66,7 +68,11 @@ func main() {
 		return
 	}
 
-	logger := slog.New(slog.NewTextHandler(os.Stderr, nil))
+	logLevel := slog.LevelInfo
+	if *debug {
+		logLevel = slog.LevelDebug
+	}
+	logger := slog.New(slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{Level: logLevel}))
 
 	var password string
 	if *passwordFile != "" {
@@ -86,6 +92,11 @@ func main() {
 		}
 		password = strings.TrimRight(string(raw), "\r\n")
 	}
+
+	// node_exporter registers its collectors via kingpin flags in init().
+	// The *bool values in collectorState are only populated after kingpin.Parse().
+	// Parse with empty args to apply defaults without touching our own flag set.
+	kingpin.MustParse(kingpin.CommandLine.Parse([]string{}))
 
 	reg := prometheus.NewRegistry()
 

@@ -57,7 +57,7 @@ The `dosh` script is the project's build tool. Available commands:
 | Command | Description |
 |---|---|
 | `./dosh build` | Build the binary in the current directory |
-| `./dosh install` | Build and install to `/usr/local/bin` |
+| `./dosh install` | Build and install to `/usr/bin` |
 | `./dosh setup` | Clone upstream repos into `upstream/` for reference |
 | `./dosh update` | Fetch upstream repos and report any new commits |
 
@@ -71,7 +71,7 @@ typically passed from an environment file (see Deployment below).
 | `-victoria-metrics-url` | `http://localhost:8428/api/v1/write` | Victoria Metrics remote_write endpoint |
 | `-username` | _(none)_ | HTTP Basic Auth username |
 | `-password-file` | _(none)_ | Path to file containing HTTP Basic Auth password |
-| `-hostname` | system hostname | Value of the `instance` label stamped on every metric |
+| `-hostname` | system hostname | Value of the `host` label stamped on every metric |
 | `-interval` | `15s` | How often to collect and push metrics |
 | `-queue-size` | `100` | Max unsent batches buffered during an outage |
 | `-process-config` | _(none)_ | Path to process-exporter YAML config (omit to skip process metrics) |
@@ -128,8 +128,8 @@ useradd --system --no-create-home --shell /usr/sbin/nologin node-process-agent
 ### 2. Install the binary
 
 ```sh
-go build -o /usr/local/bin/node-process-agent .
-chmod 755 /usr/local/bin/node-process-agent
+go build -o /usr/bin/node-process-agent .
+chmod 755 /usr/bin/node-process-agent
 ```
 
 ### 3. Create the config directory

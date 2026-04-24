@@ -3,6 +3,7 @@ package remotewrite
 import (
 	"bytes"
 	"encoding/binary"
+	"errors"
 	"fmt"
 	"log/slog"
 	"math"
@@ -61,10 +62,25 @@ func (w *Writer) collect(interval time.Duration) {
 	for range ticker.C {
 		mfs, err := w.gatherer.Gather()
 		if err != nil {
-			w.logger.Error("gather failed", "err", err)
-			continue
+			var multiErr prometheus.MultiError
+			if !errors.As(err, &multiErr) {
+				w.logger.Error("gather failed", "err", err)
+				continue
+			}
+			for _, e := range multiErr {
+				w.logger.Debug("partial gather error", "err", e)
+			}
+		}
+		w.logger.Debug("gathered", "families", len(mfs))
+		if w.logger.Enabled(nil, slog.LevelDebug) {
+			names := make([]string, len(mfs))
+			for i, mf := range mfs {
+				names[i] = mf.GetName()
+			}
+			w.logger.Debug("metric families", "names", names)
 		}
 		batch := familiesToTimeSeries(mfs, time.Now(), w.opts.Hostname)
+		w.logger.Debug("batch", "series", len(batch))
 		select {
 		case w.queue <- batch:
 		default:

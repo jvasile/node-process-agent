@@ -8,7 +8,7 @@ User=node-process-agent
 Group=node-process-agent
 SupplementaryGroups=disk
 EnvironmentFile=/etc/node-process-agent/agent.env
-ExecStart=/usr/local/bin/node-process-agent \
+ExecStart=/usr/bin/node-process-agent \
     -victoria-metrics-url $VM_URL \
     -username $VM_USERNAME \
     -password-file $VM_PASSWORD_FILE \

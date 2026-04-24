@@ -49,8 +49,8 @@ build() {
 }
 
 install() {
-    go build -o /usr/local/bin/node-process-agent .
-    echo "Installed to /usr/local/bin/node-process-agent"
+    go build -o /usr/bin/node-process-agent .
+    echo "Installed to /usr/bin/node-process-agent"
 }
 
 deb() {
