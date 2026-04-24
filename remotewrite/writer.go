@@ -22,7 +22,7 @@ type Options struct {
 	QueueSize int
 	Username  string
 	Password  string
-	Hostname  string // stamped as "instance" label on every series
+	Hostname  string // stamped as "host" label on every series
 }
 
 // Writer gathers metrics from a prometheus.Gatherer and pushes them to a
@@ -190,7 +190,7 @@ func baseLabels(name string, lps []*dto.LabelPair, hostname string) []label {
 	ls := make([]label, 0, capacity)
 	ls = append(ls, label{"__name__", name})
 	if hostname != "" {
-		ls = append(ls, label{"instance", hostname})
+		ls = append(ls, label{"host", hostname})
 	}
 	for _, lp := range lps {
 		ls = append(ls, label{lp.GetName(), lp.GetValue()})
