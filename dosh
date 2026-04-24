@@ -49,5 +49,12 @@ install() {
     echo "Installed to /usr/local/bin/node-process-agent"
 }
 
+deb() {
+    build
+    mkdir -p dist
+    VERSION=$(cat VERSION) nfpm package --packager deb --target dist/
+    echo "Package written to dist/"
+}
+
 "$@" # <- execute the task
 [ "$#" -gt 0 ] || printf "Usage:\n\t./${SCRIPTNAME} %s\n" "($(compgen -A function | grep '^[^_]' | paste -sd '|' -))"

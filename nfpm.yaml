@@ -1,0 +1,30 @@
+name: node-process-agent
+version: "${VERSION}"
+arch: amd64
+platform: linux
+maintainer: James Vasile <jvasile@gmail.com>
+description: Combined node_exporter, process-exporter, and SMART metrics agent with Victoria Metrics remote_write
+license: MPL-2.0
+depends:
+  - smartmontools
+
+contents:
+  - src: node-process-agent
+    dst: /usr/local/bin/node-process-agent
+    file_info:
+      mode: 0755
+
+  - src: node-process-agent.service
+    dst: /lib/systemd/system/node-process-agent.service
+
+  - src: packaging/processes.yml.example
+    dst: /etc/node-process-agent/processes.yml
+    type: config|noreplace
+    file_info:
+      mode: 0640
+      owner: root
+      group: node-process-agent
+
+scripts:
+  postinstall: packaging/postinstall.sh
+  preremove: packaging/preremove.sh

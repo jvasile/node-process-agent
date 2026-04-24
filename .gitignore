@@ -1,3 +1,4 @@
 .claude
 upstream
 node-process-agent
+dist/
