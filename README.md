@@ -151,8 +151,7 @@ VM_INTERVAL=15s
 VM_QUEUE_SIZE=100
 EOF
 
-chmod 640 /etc/node-process-agent/agent.env
-chown root:node-process-agent /etc/node-process-agent/agent.env
+chmod 644 /etc/node-process-agent/agent.env
 ```
 
 ### 5. Write the password file
