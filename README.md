@@ -195,24 +195,12 @@ journalctl -u node-process-agent -f
 ## Upstream dependency tracking
 
 Both node_exporter and process-exporter release regularly. Their source is kept in
-`upstream/` as shallow clones for reference.
-
-To check for new releases:
-
-```sh
-git -C upstream/node_exporter fetch --tags
-git -C upstream/process-exporter fetch --tags
-git -C upstream/node_exporter log HEAD..origin/HEAD --oneline
-git -C upstream/process-exporter log HEAD..origin/HEAD --oneline
-```
-
-When either upstream releases, update the dependency in `go.mod`:
+`upstream/` as shallow clones for reference. Run `./dosh update` to fetch upstream
+tags and compare them against the versions pinned in `go.mod`:
 
 ```sh
-go get github.com/prometheus/node_exporter@latest
-go get github.com/ncabatoff/process-exporter@latest
-go mod tidy
-go build ./...
+./dosh update
 ```
 
-Then test, commit, and redeploy.
+If a newer version is available it prints the `go get` command to update it. After
+updating, test and commit the new `go.mod` and `go.sum`.

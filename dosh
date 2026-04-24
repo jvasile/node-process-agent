@@ -7,15 +7,14 @@ BASEDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd ${BASEDIR}
 
 UPSTREAM_REPOS=(
-    "node_exporter:https://github.com/prometheus/node_exporter.git"
-    "process-exporter:https://github.com/ncabatoff/process-exporter.git"
+    "node_exporter|https://github.com/prometheus/node_exporter.git|github.com/prometheus/node_exporter"
+    "process-exporter|https://github.com/ncabatoff/process-exporter.git|github.com/ncabatoff/process-exporter"
 )
 
 setup() {
     mkdir -p upstream
     for entry in "${UPSTREAM_REPOS[@]}"; do
-        name="${entry%%:*}"
-        url="${entry#*:}"
+        IFS='|' read -r name url module <<< "$entry"
         if [ ! -d "upstream/$name" ]; then
             echo "Cloning $name..."
             git clone "$url" "upstream/$name"
@@ -27,15 +26,20 @@ setup() {
 
 update() {
     for entry in "${UPSTREAM_REPOS[@]}"; do
-        name="${entry%%:*}"
-        echo "Fetching $name..."
-        git -C "upstream/$name" fetch --tags
-        behind=$(git -C "upstream/$name" log HEAD..origin/HEAD --oneline 2>/dev/null | wc -l | tr -d ' ')
-        if [ "$behind" -gt 0 ]; then
-            echo "  $name has $behind new commits upstream -- consider updating go.mod"
-            git -C "upstream/$name" log HEAD..origin/HEAD --oneline
+        IFS='|' read -r name url module <<< "$entry"
+        echo "Checking $name..."
+        git -C "upstream/$name" fetch --tags -q
+
+        pinned=$(go list -m "$module" 2>/dev/null | awk '{print $2}')
+        latest=$(git -C "upstream/$name" tag --sort=-v:refname | grep '^v' | head -1)
+
+        if [ -z "$latest" ]; then
+            echo "  $name: no tags found upstream"
+        elif [ "$pinned" = "$latest" ]; then
+            echo "  $name: up to date ($pinned)"
         else
-            echo "  $name is up to date"
+            echo "  $name: pinned=$pinned  latest=$latest"
+            echo "    -> go get ${module}@latest && go mod tidy && go build ./..."
         fi
     done
 }
