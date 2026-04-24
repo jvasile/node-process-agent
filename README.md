@@ -3,16 +3,15 @@
 A single Go binary combining node_exporter, process-exporter, and Victoria Metrics
 remote_write — replacing three separate processes with one.
 
-## Motivation
+Between node-exporter, process-exporter, and vm-agent, I was using 100Mb of RAM
+and managing three processes plus a SMART data exporter.  Now it's 28Mb of RAM
+and one process to manage and config. On a handful of servers this is
+negligible. At dozens of constrained machines it adds up.
 
-Running `prometheus-node-exporter`, `prometheus-process-exporter`, and `vmagent`
-separately costs roughly 15MB of Go runtime overhead per process. On a handful of
-servers this is negligible. At dozens of constrained machines it adds up.
-
-Beyond RAM, the old architecture has an unnecessary HTTP round-trip: vmagent scrapes
-the two exporters over localhost HTTP, then forwards to Victoria Metrics. A combined
-binary collects metrics in-process and writes directly, eliminating the scrape loop
-entirely.
+Beyond RAM, the old architecture has an unnecessary HTTP round-trip: vmagent
+scrapes the two exporters over localhost HTTP, then forwards to Victoria
+Metrics. A combined binary collects metrics in-process and writes directly,
+eliminating the scrape loop entirely.
 
 ## Architecture
 
@@ -30,17 +29,18 @@ prometheus.Registry.Gather()
 encode (proto3 + snappy) --> POST --> Victoria Metrics
 ```
 
-No local HTTP server. No scrape loop.
+No local HTTP server and no scrape loop.
 
-On send failure the agent retries with exponential backoff (starting at 1s, capping
+On send failure, the agent retries with exponential backoff (starting at 1s, capping
 at 5 minutes). New metric batches queue behind the failing one, preserving ordering.
 When the queue fills, the oldest batch is dropped to make room for the current
 reading.
 
 The queue is in-memory only. If the agent process exits while batches are queued
-(restart, crash, reboot), those batches are lost. For node and process metrics at
-15-second intervals this is an acceptable trade-off — the next collection resumes
-immediately on startup. A persistent WAL is not implemented.
+(restart, crash, reboot), those batches are lost. For node and process metrics
+at 15-second intervals this works.  The collection resumes immediately on
+startup. A persistent WAL is not implemented, but if you need more reliability
+on keeping these metrics, that's the next feature to add.
 
 ## Building
 
