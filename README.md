@@ -58,8 +58,11 @@ The `dosh` script is the project's build tool. Available commands:
 |---|---|
 | `./dosh build` | Build the binary in the current directory |
 | `./dosh install` | Build and install to `/usr/bin` |
+| `./dosh deb` | Build a signed `.deb` into `dist/` (requires `REPO_GPG_KEY`) |
 | `./dosh setup` | Clone upstream repos into `upstream/` for reference |
 | `./dosh update` | Fetch upstream repos and report any new commits |
+
+To build a signed package, set `REPO_GPG_KEY` to your GPG key ID before running `./dosh deb`. The key is exported from your keyring and used to sign the package. Without it, an unsigned package is produced.
 
 ## Configuration
 

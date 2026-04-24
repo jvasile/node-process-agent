@@ -28,3 +28,4 @@ contents:
 scripts:
   postinstall: packaging/postinstall.sh
   preremove: packaging/preremove.sh
+

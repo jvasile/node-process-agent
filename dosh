@@ -6,6 +6,8 @@ SCRIPTNAME=`basename "$0"`
 BASEDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd ${BASEDIR}
 
+set -e
+
 UPSTREAM_REPOS=(
     "node_exporter|https://github.com/prometheus/node_exporter.git|github.com/prometheus/node_exporter"
     "process-exporter|https://github.com/ncabatoff/process-exporter.git|github.com/ncabatoff/process-exporter"
@@ -53,10 +55,26 @@ install() {
     echo "Installed to /usr/bin/node-process-agent"
 }
 
+_sign_deb() {
+    local deb="$1" keyid="$2"
+    if ! /usr/share/debdelta/dpkg-sig -k "$keyid" --sign builder "$deb"; then
+        echo "Error: signing failed" >&2
+        exit 1
+    fi
+    echo "Signed: $deb"
+}
+
 deb() {
     build
     mkdir -p dist
     VERSION=$(cat VERSION) nfpm package --packager deb --target dist/
+    local pkg
+    pkg=$(ls -t dist/*.deb | head -1)
+    if [ -n "${REPO_GPG_KEY:-}" ]; then
+        _sign_deb "$pkg" "$REPO_GPG_KEY"
+    else
+        echo "Warning: REPO_GPG_KEY not set, package will not be signed"
+    fi
     echo "Package written to dist/"
 }
 
