@@ -143,7 +143,7 @@ chmod 750 /etc/node-process-agent
 ### 4. Write the environment file
 
 ```sh
-cat > /etc/node-process-agent/node-process-agent.env <<'EOF'
+cat > /etc/node-process-agent/agent.env <<'EOF'
 VM_URL=https://vm.example.com/api/v1/write
 VM_USERNAME=myuser
 VM_PASSWORD_FILE=/etc/node-process-agent/password
@@ -152,8 +152,8 @@ VM_INTERVAL=15s
 VM_QUEUE_SIZE=100
 EOF
 
-chmod 640 /etc/node-process-agent/node-process-agent.env
-chown root:node-process-agent /etc/node-process-agent/node-process-agent.env
+chmod 640 /etc/node-process-agent/agent.env
+chown root:node-process-agent /etc/node-process-agent/agent.env
 ```
 
 ### 5. Write the password file

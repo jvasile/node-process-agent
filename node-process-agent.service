@@ -7,7 +7,7 @@ After=network.target
 User=node-process-agent
 Group=node-process-agent
 SupplementaryGroups=disk
-EnvironmentFile=/etc/node-process-agent/node-process-agent.env
+EnvironmentFile=/etc/node-process-agent/agent.env
 ExecStart=/usr/local/bin/node-process-agent \
     -victoria-metrics-url $VM_URL \
     -username $VM_USERNAME \
