@@ -70,6 +70,15 @@ func main() {
 
 	var password string
 	if *passwordFile != "" {
+		info, err := os.Stat(*passwordFile)
+		if err != nil {
+			logger.Error("reading password file failed", "path", *passwordFile, "err", err)
+			os.Exit(1)
+		}
+		if info.Mode().Perm()&0o004 != 0 {
+			logger.Error("password file is world-readable, tighten permissions to 640 or stricter", "path", *passwordFile)
+			os.Exit(1)
+		}
 		raw, err := os.ReadFile(*passwordFile)
 		if err != nil {
 			logger.Error("reading password file failed", "path", *passwordFile, "err", err)

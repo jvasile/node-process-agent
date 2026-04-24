@@ -6,7 +6,7 @@ if ! id -u node-process-agent > /dev/null 2>&1; then
         --groups disk node-process-agent
 fi
 
-install -d -m 750 -o root -g node-process-agent /etc/node-process-agent
+install -d -m 755 /etc/node-process-agent
 
 systemctl daemon-reload
 systemctl enable node-process-agent

@@ -136,8 +136,7 @@ chmod 755 /usr/local/bin/node-process-agent
 
 ```sh
 mkdir -p /etc/node-process-agent
-chown root:node-process-agent /etc/node-process-agent
-chmod 750 /etc/node-process-agent
+chmod 755 /etc/node-process-agent
 ```
 
 ### 4. Write the environment file
