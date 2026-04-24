@@ -49,8 +49,17 @@ Requires Go 1.25 or later.
 ```sh
 git clone https://github.com/jvasile/node-process-agent
 cd node-process-agent
-go build -o node-process-agent .
+./dosh build
 ```
+
+The `dosh` script is the project's build tool. Available commands:
+
+| Command | Description |
+|---|---|
+| `./dosh build` | Build the binary in the current directory |
+| `./dosh install` | Build and install to `/usr/local/bin` |
+| `./dosh setup` | Clone upstream repos into `upstream/` for reference |
+| `./dosh update` | Fetch upstream repos and report any new commits |
 
 ## Configuration
 

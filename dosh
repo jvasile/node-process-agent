@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# Do - The Simplest Build Tool on Earth.
+# Documentation and examples see https://github.com/8gears/do
+#
+SCRIPTNAME=`basename "$0"`
+BASEDIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+cd ${BASEDIR}
+
+UPSTREAM_REPOS=(
+    "node_exporter:https://github.com/prometheus/node_exporter.git"
+    "process-exporter:https://github.com/ncabatoff/process-exporter.git"
+)
+
+setup() {
+    mkdir -p upstream
+    for entry in "${UPSTREAM_REPOS[@]}"; do
+        name="${entry%%:*}"
+        url="${entry#*:}"
+        if [ ! -d "upstream/$name" ]; then
+            echo "Cloning $name..."
+            git clone "$url" "upstream/$name"
+        else
+            echo "$name already present"
+        fi
+    done
+}
+
+update() {
+    for entry in "${UPSTREAM_REPOS[@]}"; do
+        name="${entry%%:*}"
+        echo "Fetching $name..."
+        git -C "upstream/$name" fetch --tags
+        behind=$(git -C "upstream/$name" log HEAD..origin/HEAD --oneline 2>/dev/null | wc -l | tr -d ' ')
+        if [ "$behind" -gt 0 ]; then
+            echo "  $name has $behind new commits upstream -- consider updating go.mod"
+            git -C "upstream/$name" log HEAD..origin/HEAD --oneline
+        else
+            echo "  $name is up to date"
+        fi
+    done
+}
+
+build() {
+    go build -o node-process-agent .
+}
+
+install() {
+    go build -o /usr/local/bin/node-process-agent .
+    echo "Installed to /usr/local/bin/node-process-agent"
+}
+
+"$@" # <- execute the task
+[ "$#" -gt 0 ] || printf "Usage:\n\t./${SCRIPTNAME} %s\n" "($(compgen -A function | grep '^[^_]' | paste -sd '|' -))"
